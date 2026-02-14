@@ -1,0 +1,348 @@
+/* Traffic Light AI Monitor - Styles */
+
+:root {
+  --color-red: #DC2626;
+  --color-red-light: #FEE2E2;
+  --color-yellow: #FBBF24;
+  --color-yellow-light: #FEF3C7;
+  --color-green: #10B981;
+  --color-green-light: #D1FAE5;
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F9FAFB;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+  min-width: 320px;
+}
+
+.container {
+  padding: 16px;
+}
+
+/* Traffic Light Indicator */
+.traffic-light {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.traffic-light-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.traffic-light-status {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.traffic-light-reason {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
+/* Status Cards */
+.status-card {
+  padding: 16px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  border-left: 4px solid;
+  background: var(--color-bg-secondary);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-card.red {
+  border-left-color: var(--color-red);
+  background: var(--color-red-light);
+}
+
+.status-card.yellow {
+  border-left-color: var(--color-yellow);
+  background: var(--color-yellow-light);
+}
+
+.status-card.green {
+  border-left-color: var(--color-green);
+  background: var(--color-green-light);
+}
+
+.status-card-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-card-description {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Activity Log */
+.activity-log {
+  margin-top: 16px;
+}
+
+.activity-log-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--color-text);
+}
+
+.activity-item {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--color-bg-secondary);
+  margin-bottom: 8px;
+  font-size: 12px;
+  border-left: 3px solid var(--color-border);
+}
+
+.activity-item.red { border-left-color: var(--color-red); }
+.activity-item.yellow { border-left-color: var(--color-yellow); }
+.activity-item.green { border-left-color: var(--color-green); }
+
+.activity-time {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.activity-url {
+  color: var(--color-text);
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-reason {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-border);
+}
+
+/* Settings Page */
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.settings-header {
+  margin-bottom: 32px;
+}
+
+.settings-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.settings-description {
+  color: var(--color-text-secondary);
+}
+
+.settings-section {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.settings-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--color-text-secondary);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 14px;
+}
+
+/* Snooze Warning Styles */
+.snooze-warning {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border: 2px solid #F59E0B;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.snooze-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.snooze-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #92400E;
+  margin-bottom: 12px;
+}
+
+.snooze-countdown {
+  font-size: 36px;
+  font-weight: 700;
+  color: #B45309;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.snooze-message {
+  font-size: 14px;
+  color: #78350F;
+  margin-bottom: 16px;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+/* Violation Counter Styles */
+.violation-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+  border: 2px solid #EF4444;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.violation-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #991B1B;
+}
+
+.violation-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: #DC2626;
+  font-variant-numeric: tabular-nums;
+}

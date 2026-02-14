@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Light AI Monitor - Settings</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="settings-container">
+        <div class="settings-header">
+            <h1 class="settings-title">⚙️ Traffic Light AI Monitor Settings</h1>
+            <p class="settings-description">
+                Customize monitoring rules and configure how the extension tracks AI usage
+            </p>
+        </div>
+
+        <!-- Custom AI Websites -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">AI Websites</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                Add custom AI websites to monitor. One URL pattern per line (e.g., *://example.com/*)
+            </p>
+
+            <div class="form-group">
+                <label class="form-label" for="customAIWebsites">Custom AI Website Patterns</label>
+                <textarea class="form-textarea" id="customAIWebsites"
+                    placeholder="*://custom-ai-tool.com/*&#10;*://another-ai.com/chat/*"></textarea>
+            </div>
+        </div>
+
+        <!-- Custom Academic Platforms -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">Academic Platforms</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                Add custom academic platforms to monitor. One URL pattern per line.
+            </p>
+
+            <div class="form-group">
+                <label class="form-label" for="customAcademicPlatforms">Custom Academic Platform Patterns</label>
+                <textarea class="form-textarea" id="customAcademicPlatforms"
+                    placeholder="*://school-lms.edu/*&#10;*://grading-system.com/*"></textarea>
+            </div>
+        </div>
+
+        <!-- Grading Keywords -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">Grading Keywords</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                Keywords that indicate grading or submission context. Comma-separated.
+            </p>
+
+            <div class="form-group">
+                <label class="form-label" for="gradingKeywords">Custom Grading Keywords</label>
+                <input type="text" class="form-input" id="gradingKeywords"
+                    placeholder="submit, grade, assignment, quiz, test" />
+            </div>
+        </div>
+
+        <!-- Snooze Configuration -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">🔴 Snooze Feature</h2>
+            <p style="color: var(--color-text-secondary); margin-bottom: 16px;">
+                Configure the automatic snooze that blocks AI access after repeated red violations.
+            </p>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="snoozeEnabled" style="width: auto;">
+                    <span>Enable snooze feature</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="violationThreshold">Red Violation Threshold</label>
+                <input type="number" class="form-input" id="violationThreshold" min="1" max="20" value="5" />
+                <small style="color: var(--color-text-secondary);">Number of red violations before snooze
+                    activates</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="snoozeDuration">Snooze Duration (minutes)</label>
+                <input type="number" class="form-input" id="snoozeDuration" min="1" max="120" value="10" />
+                <small style="color: var(--color-text-secondary);">How long AI access is blocked</small>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-secondary" id="resetSnoozeBtn" style="width: 100%;">
+                    🔄 Reset Current Snooze
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-section">
+            <h2 class="settings-section-title">Notifications</h2>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="notifyOnRed" style="width: auto;">
+                    <span>Notify when red light is triggered</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="notifyOnYellow" style="width: auto;">
+                    <span>Notify when yellow light is triggered</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button class="btn btn-primary" id="saveBtn">💾 Save Settings</button>
+            <button class="btn btn-secondary" id="resetBtn">🔄 Reset to Defaults</button>
+            <button class="btn btn-secondary" id="exportBtn">📤 Export Settings</button>
+        </div>
+
+        <div id="saveMessage" style="margin-top: 16px; padding: 12px; border-radius: 8px; display: none;"></div>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+
+</html>

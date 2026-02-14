@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Light AI Monitor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Traffic Light Status Display -->
+    <div class="traffic-light" id="trafficLight">
+      <div class="traffic-light-icon" id="statusIcon">🟢</div>
+      <div class="traffic-light-status" id="statusText">All Clear</div>
+      <div class="traffic-light-reason" id="statusReason">No AI usage detected</div>
+    </div>
+
+    <!-- Snooze Warning (hidden by default) -->
+    <div class="snooze-warning" id="snoozeWarning" style="display: none;">
+      <div class="snooze-icon">⏸️</div>
+      <div class="snooze-title">AI Access Snoozed</div>
+      <div class="snooze-countdown" id="snoozeCountdown">--:--</div>
+      <div class="snooze-message">AI tools are temporarily blocked</div>
+      <button class="btn btn-small btn-secondary" id="resetSnoozeBtn">Reset Snooze</button>
+    </div>
+
+    <!-- Violation Counter -->
+    <div class="violation-counter" id="violationCounter" style="display: none;">
+      <span class="violation-label">Red Violations:</span>
+      <span class="violation-count" id="violationCount">0/5</span>
+    </div>
+
+    <!-- Status Legend -->
+    <div class="status-card green">
+      <div class="status-card-title">
+        🟢 Green - Approved
+      </div>
+      <div class="status-card-description">
+        Safe AI usage or no AI detected
+      </div>
+    </div>
+
+    <div class="status-card yellow">
+      <div class="status-card-title">
+        🟡 Yellow - Caution
+      </div>
+      <div class="status-card-description">
+        AI usage requires careful consideration
+      </div>
+    </div>
+
+    <div class="status-card red">
+      <div class="status-card-title">
+        🔴 Red - Prohibited
+      </div>
+      <div class="status-card-description">
+        Using AI for grading or submitting work
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-log">
+      <div class="activity-log-title">Recent Activity</div>
+      <div id="activityList">
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-text">No recent activity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="margin-top: 16px; display: flex; gap: 8px;">
+      <button class="btn btn-primary" id="settingsBtn" style="flex: 1;">
+        ⚙️ Settings
+      </button>
+      <button class="btn btn-secondary" id="refreshBtn" style="flex: 1;">
+        🔄 Refresh
+      </button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

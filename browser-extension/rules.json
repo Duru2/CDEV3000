@@ -1,0 +1,89 @@
+{
+    "aiWebsites": [
+        {
+            "pattern": "*://chat.openai.com/*",
+            "name": "ChatGPT",
+            "defaultStatus": "yellow"
+        },
+        {
+            "pattern": "*://claude.ai/*",
+            "name": "Claude",
+            "defaultStatus": "yellow"
+        },
+        {
+            "pattern": "*://gemini.google.com/*",
+            "name": "Gemini",
+            "defaultStatus": "yellow"
+        },
+        {
+            "pattern": "*://copilot.microsoft.com/*",
+            "name": "Copilot",
+            "defaultStatus": "yellow"
+        },
+        {
+            "pattern": "*://perplexity.ai/*",
+            "name": "Perplexity",
+            "defaultStatus": "yellow"
+        }
+    ],
+    "academicPlatforms": [
+        {
+            "pattern": "*://*.instructure.com/*",
+            "name": "Canvas LMS",
+            "keywords": [
+                "submit",
+                "assignment",
+                "grade",
+                "quiz"
+            ]
+        },
+        {
+            "pattern": "*://*.blackboard.com/*",
+            "name": "Blackboard",
+            "keywords": [
+                "submit",
+                "assignment",
+                "grade",
+                "test"
+            ]
+        },
+        {
+            "pattern": "*://classroom.google.com/*",
+            "name": "Google Classroom",
+            "keywords": [
+                "turn in",
+                "assignment",
+                "submit"
+            ]
+        },
+        {
+            "pattern": "*://turnitin.com/*",
+            "name": "Turnitin",
+            "keywords": [
+                "submit",
+                "upload"
+            ]
+        }
+    ],
+    "rules": {
+        "red": {
+            "description": "Prohibited - Using AI for grading or submitting work",
+            "conditions": [
+                "aiWebsite AND academicPlatform",
+                "aiWebsite AND gradingKeywords"
+            ]
+        },
+        "yellow": {
+            "description": "Caution - AI usage requires careful consideration",
+            "conditions": [
+                "aiWebsite AND NOT academicPlatform"
+            ]
+        },
+        "green": {
+            "description": "Approved - Safe AI usage or no AI detected",
+            "conditions": [
+                "NOT aiWebsite"
+            ]
+        }
+    }
+}

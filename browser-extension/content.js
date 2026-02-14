@@ -45,6 +45,7 @@ class MessageMonitor {
         this.observer = null;
         this.platform = this.detectPlatform();
         this.checkCount = 0;
+        this.messageCount = 0;
 
         if (this.platform) {
             console.log('[Content] ✅ Platform detected:', this.platform);
@@ -76,8 +77,8 @@ class MessageMonitor {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.startMonitoring());
         } else {
-            // Page already loaded
-            setTimeout(() => this.startMonitoring(), 2000);
+            // Page already loaded, wait a bit for React to render
+            setTimeout(() => this.startMonitoring(), 3000);
         }
     }
 
@@ -91,63 +92,89 @@ class MessageMonitor {
 
         this.observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
+            characterData: true
         });
 
         console.log('[Content] ✅ MutationObserver started');
 
         // Also check immediately
         this.checkForNewMessages();
+
+        // And check periodically as backup
+        setInterval(() => {
+            this.checkForNewMessages();
+        }, 2000);
     }
 
     checkForNewMessages() {
         this.checkCount++;
 
-        if (this.checkCount % 50 === 0) {
-            console.log('[Content] Check count:', this.checkCount);
-        }
-
-        let messageElement = null;
         let messageText = '';
 
         // Platform-specific selectors
         if (this.platform === 'chatgpt') {
-            // Get the last user message
-            const userMessages = document.querySelectorAll('[data-message-author-role="user"]');
+            // Try multiple selectors for ChatGPT
+            const selectors = [
+                '[data-message-author-role="user"]',
+                '[data-testid*="user"]',
+                'div.group.w-full',
+                'article'
+            ];
 
-            if (this.checkCount % 50 === 0) {
-                console.log('[Content] Found', userMessages.length, 'user messages');
+            let allMessages = [];
+
+            for (const selector of selectors) {
+                const messages = document.querySelectorAll(selector);
+                if (messages.length > allMessages.length) {
+                    allMessages = messages;
+                    if (this.checkCount === 1) {
+                        console.log('[Content] Using selector:', selector, '- Found', messages.length, 'messages');
+                    }
+                }
             }
 
-            if (userMessages.length > 0) {
-                messageElement = userMessages[userMessages.length - 1];
-                messageText = messageElement.innerText.trim();
+            // Get all text content from the page and find user messages
+            if (allMessages.length > 0) {
+                const lastMessage = allMessages[allMessages.length - 1];
+                messageText = lastMessage.innerText?.trim() || lastMessage.textContent?.trim() || '';
+
+                // Filter out assistant responses
+                if (messageText && !messageText.includes('ChatGPT') && messageText.length > 5) {
+                    this.messageCount = allMessages.length;
+                }
             }
+
+            // Fallback: check the input field for submitted text
+            if (!messageText) {
+                const mainContent = document.querySelector('main');
+                if (mainContent) {
+                    const allText = mainContent.innerText;
+                    // Try to extract the last user message
+                    const lines = allText.split('\n').filter(line => line.trim().length > 10);
+                    if (lines.length > 0) {
+                        messageText = lines[lines.length - 1];
+                    }
+                }
+            }
+
         } else if (this.platform === 'gemini') {
-            // Get the last query
             const queries = document.querySelectorAll('.query-text, [data-test-id="user-query"]');
-
-            if (this.checkCount % 50 === 0) {
-                console.log('[Content] Found', queries.length, 'queries');
-            }
-
             if (queries.length > 0) {
-                messageElement = queries[queries.length - 1];
-                messageText = messageElement.innerText.trim();
+                messageText = queries[queries.length - 1].innerText.trim();
             }
         } else if (this.platform === 'claude') {
-            // Get the last user message
             const userMessages = document.querySelectorAll('[data-is-streaming="false"]');
             if (userMessages.length > 0) {
-                messageElement = userMessages[userMessages.length - 1];
-                messageText = messageElement.innerText.trim();
+                messageText = userMessages[userMessages.length - 1].innerText.trim();
             }
         }
 
         // Process new message
-        if (messageText && messageText !== this.lastProcessedMessage) {
+        if (messageText && messageText !== this.lastProcessedMessage && messageText.length > 5) {
             console.log('[Content] 🆕 NEW MESSAGE DETECTED!');
-            console.log('[Content] Message:', messageText.substring(0, 100));
+            console.log('[Content] Message preview:', messageText.substring(0, 100));
+            console.log('[Content] Message length:', messageText.length);
 
             this.lastProcessedMessage = messageText;
             this.analyzeMessage(messageText);
@@ -156,7 +183,6 @@ class MessageMonitor {
 
     analyzeMessage(text) {
         console.log('[Content] 🔍 Analyzing message...');
-        console.log('[Content] Text length:', text.length);
 
         const status = this.classifyMessage(text);
 
@@ -182,7 +208,6 @@ class MessageMonitor {
 
     classifyMessage(text) {
         const lowerText = text.toLowerCase();
-        console.log('[Content] Checking keywords in:', lowerText.substring(0, 50));
 
         // Check for red keywords (highest priority)
         for (const keyword of KEYWORDS.red) {
@@ -208,7 +233,7 @@ class MessageMonitor {
             }
         }
 
-        // Default to yellow if no keywords matched (cautious approach)
+        // Default to yellow if no keywords matched
         console.log('[Content] 🟡 No keywords matched, defaulting to YELLOW');
         return 'yellow';
     }

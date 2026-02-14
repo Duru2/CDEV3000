@@ -18,10 +18,17 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "*://chat.openai.com/*",
+        "*://chatgpt.com/*",
+        "*://gemini.google.com/*",
+        "*://claude.ai/*"
       ],
       "js": [
-        "content.js"
+        "content.js",
+        "traffic-light-widget.js"
+      ],
+      "css": [
+        "traffic-light-widget.css"
       ],
       "run_at": "document_idle"
     }
@@ -42,7 +49,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "blocked.html"
+        "blocked.html",
+        "traffic-light-widget.css"
       ],
       "matches": [
         "<all_urls>"

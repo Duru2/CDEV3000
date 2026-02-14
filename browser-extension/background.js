@@ -100,6 +100,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         handlePageContext(sender.tab.id, sender.tab.url, message.data);
     } else if (message.type === 'GET_STATUS') {
         sendResponse({ status: currentStatus[sender.tab.id] || 'green' });
+    } else if (message.type === 'ANALYZE_MESSAGE') {
+        handleMessageAnalysis(sender.tab.id, message.data);
+        sendResponse({ success: true });
     } else if (message.type === 'GET_ACTIVITY_LOG') {
         sendResponse({ log: activityLog.slice(-50) }); // Last 50 entries
     } else if (message.type === 'GET_SNOOZE_STATUS') {
@@ -112,6 +115,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     } else if (message.type === 'RESET_SNOOZE') {
         resetSnooze();
         sendResponse({ success: true });
+    } else if (message.type === 'BLOCK_ENDED') {
+        resetSnooze();
+        sendResponse({ success: true });
+    } else if (message.type === 'GET_COUNTERS') {
+        chrome.storage.local.get(['colorCounters'], (result) => {
+            sendResponse({ counters: result.colorCounters || { green: 0, yellow: 0, red: 0 } });
+        });
+        return true;
     }
     return true;
 });
@@ -249,6 +260,105 @@ function logActivity(tabId, url, status, reason) {
 
     // Save to storage
     chrome.storage.local.set({ activityLog });
+}
+
+// Handle message analysis from content script
+async function handleMessageAnalysis(tabId, data) {
+    const { text, status, timestamp, platform } = data;
+
+    console.log('[Background] Message analyzed:', status, 'on', platform);
+
+    // Load current counters
+    const result = await chrome.storage.local.get(['colorCounters', 'counterTimestamps']);
+    let counters = result.colorCounters || { green: 0, yellow: 0, red: 0 };
+    let timestamps = result.counterTimestamps || { green: [], yellow: [], red: [] };
+
+    // Remove counts older than 30 days
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    for (const color of ['green', 'yellow', 'red']) {
+        timestamps[color] = timestamps[color].filter(ts => ts > thirtyDaysAgo);
+        counters[color] = timestamps[color].length;
+    }
+
+    // Add new count
+    timestamps[status].push(timestamp);
+    counters[status]++;
+
+    // Save updated counters
+    await chrome.storage.local.set({ colorCounters: counters, counterTimestamps: timestamps });
+
+    // Log activity
+    logActivity(tabId, window.location?.href || 'AI Chat', status,
+        `${status.toUpperCase()} message detected: "${text.substring(0, 50)}..."`);
+
+    // Check for red violation threshold
+    if (status === 'red' && counters.red >= 5 && snoozeConfig.enabled && !isSnoozing) {
+        // Activate snooze
+        activateChatBlock(tabId);
+    }
+
+    // Send update to widget
+    chrome.tabs.sendMessage(tabId, {
+        type: 'UPDATE_STATUS',
+        status: status,
+        counters: counters
+    }).catch(() => {
+        // Widget might not be loaded yet, ignore error
+    });
+}
+
+// Activate chat blocking
+async function activateChatBlock(tabId) {
+    isSnoozing = true;
+    snoozeEndTime = Date.now() + (snoozeConfig.snoozeDurationMinutes * 60 * 1000);
+
+    await saveSnoozeState();
+
+    // Notify tab to show blocking overlay
+    chrome.tabs.sendMessage(tabId, {
+        type: 'ACTIVATE_BLOCK',
+        endTime: snoozeEndTime
+    }).catch(() => {
+        console.log('[Background] Could not send block message to tab');
+    });
+
+    // Show notification
+    chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'icons/icon128.png',
+        title: 'Chat Blocked - 5 Red Violations',
+        message: `AI chat access blocked for ${snoozeConfig.snoozeDurationMinutes} minutes due to repeated inappropriate usage.`,
+        priority: 2
+    });
+
+    // Schedule auto-unblock
+    setTimeout(() => {
+        deactivateChatBlock(tabId);
+    }, snoozeConfig.snoozeDurationMinutes * 60 * 1000);
+}
+
+// Deactivate chat blocking
+async function deactivateChatBlock(tabId) {
+    isSnoozing = false;
+    snoozeEndTime = null;
+
+    await saveSnoozeState();
+
+    // Notify tab to remove blocking overlay
+    chrome.tabs.sendMessage(tabId, {
+        type: 'DEACTIVATE_BLOCK'
+    }).catch(() => {
+        console.log('[Background] Could not send unblock message to tab');
+    });
+
+    // Show notification
+    chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'icons/icon128.png',
+        title: 'Chat Unblocked',
+        message: 'AI chat access has been restored. Please use AI tools responsibly.',
+        priority: 1
+    });
 }
 
 // Handle page context updates from content script

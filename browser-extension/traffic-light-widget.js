@@ -25,22 +25,39 @@ class TrafficLightWidget {
     setupMessageListener() {
         // Listen for updates from background
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            console.log('[Widget] Received message:', message.type);
+            console.log('[Widget] 📨 Received message:', message.type);
 
             if (message.type === 'UPDATE_STATUS') {
-                console.log('[Widget] Updating status:', message.status, message.counters);
+                console.log('[Widget] 🔄 Updating status:', message.status, 'Counters:', message.counters);
                 this.updateStatus(message.status, message.counters);
+
+                // Also save to storage for persistence
+                chrome.storage.local.set({
+                    colorCounters: message.counters,
+                    lastStatus: message.status
+                });
+
+                sendResponse({ success: true });
             } else if (message.type === 'ACTIVATE_BLOCK') {
                 this.activateBlock(message.endTime);
+                sendResponse({ success: true });
             } else if (message.type === 'DEACTIVATE_BLOCK') {
                 this.deactivateBlock();
+                sendResponse({ success: true });
             }
+
+            return true; // Keep message channel open for async response
         });
 
         // Check if currently blocked
         this.checkBlockStatus();
 
-        console.log('[Widget] Message listener setup complete');
+        // Periodically reload counters from storage (backup)
+        setInterval(() => {
+            this.loadState();
+        }, 2000);
+
+        console.log('[Widget] ✅ Message listener setup complete');
     }
 
     createWidget() {

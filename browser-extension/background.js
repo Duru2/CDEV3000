@@ -288,8 +288,10 @@ async function handleMessageAnalysis(tabId, data) {
     await chrome.storage.local.set({ colorCounters: counters, counterTimestamps: timestamps });
 
     // Log activity
-    logActivity(tabId, window.location?.href || 'AI Chat', status,
+    logActivity(tabId, 'AI Chat', status,
         `${status.toUpperCase()} message detected: "${text.substring(0, 50)}..."`);
+
+    console.log('[Background] Sending update to tab:', tabId, 'Status:', status, 'Counters:', counters);
 
     // Check for red violation threshold
     if (status === 'red' && counters.red >= 5 && snoozeConfig.enabled && !isSnoozing) {
@@ -297,14 +299,17 @@ async function handleMessageAnalysis(tabId, data) {
         activateChatBlock(tabId);
     }
 
-    // Send update to widget
-    chrome.tabs.sendMessage(tabId, {
-        type: 'UPDATE_STATUS',
-        status: status,
-        counters: counters
-    }).catch(() => {
-        // Widget might not be loaded yet, ignore error
-    });
+    // Send update to widget - make sure tab exists
+    try {
+        await chrome.tabs.sendMessage(tabId, {
+            type: 'UPDATE_STATUS',
+            status: status,
+            counters: counters
+        });
+        console.log('[Background] ✅ Update sent to widget successfully');
+    } catch (error) {
+        console.log('[Background] ⚠️ Could not send to tab:', error.message);
+    }
 }
 
 // Activate chat blocking

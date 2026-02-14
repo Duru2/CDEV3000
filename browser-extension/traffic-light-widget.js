@@ -9,19 +9,26 @@ class TrafficLightWidget {
         this.blockEndTime = null;
         this.timerInterval = null;
 
+        console.log('[Widget] Initializing...');
         this.init();
     }
 
     init() {
-        // Create widget DOM
-        this.createWidget();
+        // Wait a bit for page to load
+        setTimeout(() => {
+            this.createWidget();
+            this.loadState();
+            this.setupMessageListener();
+        }, 1000);
+    }
 
-        // Load saved state
-        this.loadState();
-
+    setupMessageListener() {
         // Listen for updates from background
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            console.log('[Widget] Received message:', message.type);
+
             if (message.type === 'UPDATE_STATUS') {
+                console.log('[Widget] Updating status:', message.status, message.counters);
                 this.updateStatus(message.status, message.counters);
             } else if (message.type === 'ACTIVATE_BLOCK') {
                 this.activateBlock(message.endTime);
@@ -32,6 +39,8 @@ class TrafficLightWidget {
 
         // Check if currently blocked
         this.checkBlockStatus();
+
+        console.log('[Widget] Message listener setup complete');
     }
 
     createWidget() {
@@ -77,13 +86,17 @@ class TrafficLightWidget {
 
         // Add to page
         document.body.appendChild(this.widget);
+
+        console.log('[Widget] Widget created and added to page');
     }
 
     async loadState() {
-        const result = await chrome.storage.local.get(['counters', 'blockEndTime']);
+        const result = await chrome.storage.local.get(['colorCounters', 'counterTimestamps', 'blockEndTime']);
 
-        if (result.counters) {
-            this.counters = result.counters;
+        console.log('[Widget] Loaded state:', result);
+
+        if (result.colorCounters) {
+            this.counters = result.colorCounters;
             this.updateCounterDisplay();
         }
 
@@ -93,6 +106,8 @@ class TrafficLightWidget {
     }
 
     updateStatus(status, counters) {
+        console.log('[Widget] updateStatus called:', status, counters);
+
         this.currentStatus = status;
         if (counters) {
             this.counters = counters;
@@ -134,6 +149,8 @@ class TrafficLightWidget {
     }
 
     updateCounterDisplay() {
+        console.log('[Widget] Updating counter display:', this.counters);
+
         this.widget.querySelector('.tl-counter-green').textContent = this.counters.green;
         this.widget.querySelector('.tl-counter-yellow').textContent = this.counters.yellow;
         this.widget.querySelector('.tl-counter-red .tl-counter-value').textContent =
@@ -290,10 +307,14 @@ class TrafficLightWidget {
 }
 
 // Initialize widget when page loads
+console.log('[Widget] Script loaded, waiting for page ready...');
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        new TrafficLightWidget();
+        console.log('[Widget] DOMContentLoaded, creating widget');
+        window.trafficLightWidget = new TrafficLightWidget();
     });
 } else {
-    new TrafficLightWidget();
+    console.log('[Widget] Document already ready, creating widget');
+    window.trafficLightWidget = new TrafficLightWidget();
 }
